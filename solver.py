@@ -9,10 +9,15 @@ def str_to_bitboard(string):
     return int(''.join(string.split()), 2)
 
 def is_valid_move(board, direction, position):
-    if direction == 'y':
-        move_board = ((1 << 14) ^ (1 << 7) ^ 1) << position
+    if direction == 'up':
+        move_board = ((1 << 14) ^ (1 << 7) ^ 1) << (position - 7)
         result = move_board ^ board
-        return (result & move_board) == (1 << (14 + position)), result
+        return (result & move_board) == (1 << (7 + position)), result
+
+    if direction == 'down':
+        move_board = ((1 << 14) ^ (1 << 7) ^ 1) << (position + 7)
+        result = move_board ^ board
+        return (result & move_board) == (1 << (21 + position)), result
 
     if direction == 'right':
         move_board = 7 << (position - 1) # 7 = '111'
@@ -34,7 +39,7 @@ board_mask = str_to_bitboard("""
 1100011
 """)
 
-board = str_to_bitboard("""
+board_string = """
 1111111
 1111111
 1111111
@@ -42,19 +47,27 @@ board = str_to_bitboard("""
 1111111
 1111111
 1111111
-""")
+"""
+board = str_to_bitboard(board_string)
+board_len = len(''.join(board_string.split()))
 
-# valid, result = is_valid_move(board, 'y', 10)
-# print('y')
-# print(valid)
-# print_bitboard(result)
+print('Running tests')
+valid_up, result = is_valid_move(board, 'up', 17)
+valid_down, result = is_valid_move(board, 'down', 31)
+valid_right, result = is_valid_move(board, 'right', 25)
+valid_left, result = is_valid_move(board, 'left', 23)
 
-valid, result = is_valid_move(board, 'right', 25)
-print('right')
-print(valid)
-print_bitboard(result)
+if (valid_up and valid_down and valid_right and valid_left):
+    print('All tests passed')
+else:
+    print("Tests failed")
+    exit()
 
-valid, result = is_valid_move(board, 'left', 23)
-print('left')
-print(valid)
-print_bitboard(result)
+print('Solving...')
+
+def solve(board):
+    for pos in range(0, board_len):
+        print(pos)
+
+
+solve(board)
