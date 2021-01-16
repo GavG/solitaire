@@ -1,4 +1,5 @@
 from textwrap import wrap
+import timeit
 
 def print_bitboard(board):
     board_string = '{:064b}'.format(board)[15:]
@@ -62,6 +63,8 @@ def solve_dir(direction, pos, board, solution):
             print('SOLUTION FOUND!\n')
             print_bitboard(result)
             print(solution)
+            print('\nTime taken: ')
+            print(timeit.default_timer() - start_time)
             exit()
         else:
             solve(result, solution)
@@ -69,6 +72,8 @@ def solve_dir(direction, pos, board, solution):
 def main():
     setup()
     print('Solving...\n')
+    global start_time
+    start_time = timeit.default_timer()
     solve(board, [])
 
 def setup():

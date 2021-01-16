@@ -91,13 +91,15 @@ def main():
     print('Solving...\n')
     solve(board, [])
 
-    for i in range(100):
+    for i in range(no_threads):
         worker = threading.Thread(target=process_queue, args=(job_queue,))
         worker.start()
 
 
 def setup():
     global running
+    global no_threads
+    
     global board_target
     global board_string
     global board
@@ -106,6 +108,7 @@ def setup():
     global job_queue
 
     running = True
+    no_threads = 1000
 
     board_target = str_to_bitboard("""
     1100011
