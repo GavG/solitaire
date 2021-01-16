@@ -12,12 +12,12 @@ def is_valid_move(board, direction, position):
     if direction == 'up':
         move_board = ((1 << 14) ^ (1 << 7) ^ 1) << (position - 7)
         result = move_board ^ board
-        return (result & move_board) == (1 << (7 + position)), result
+        return (result & move_board) == (1 << (position + 7)), result
 
     if direction == 'down':
-        move_board = ((1 << 14) ^ (1 << 7) ^ 1) << (position + 7)
+        move_board = ((1 << 14) ^ (1 << 7) ^ 1) << (position - 7)
         result = move_board ^ board
-        return (result & move_board) == (1 << (21 + position)), result
+        return (result & move_board) == (1 << (position - 7)), result
 
     if direction == 'right':
         move_board = 7 << (position - 1) # 7 = '111'
@@ -58,6 +58,7 @@ board_string = """
 1111111
 1111111
 """
+
 board = str_to_bitboard(board_string)
 board_len = len(''.join(board_string.split()))
 
@@ -67,33 +68,48 @@ valid_down, result = is_valid_move(board, 'down', 31)
 valid_right, result = is_valid_move(board, 'right', 25)
 valid_left, result = is_valid_move(board, 'left', 23)
 
+# board_string = """
+# 1100011
+# 1100011
+# 0000010
+# 0000010
+# 0000100
+# 1101011
+# 1100011
+# """
+
+# board = str_to_bitboard(board_string)
+# board_len = len(''.join(board_string.split()))
+
 if (valid_up and valid_down and valid_right and valid_left):
     print('All tests passed')
 else:
     print("Tests failed")
     exit()
 
-print('Solving...')
+print('Solving...\n')
 
 def solve_dir(direction, pos, board, solution):
     valid, result = is_valid_move(board, direction, pos)
     if (valid and ((board_mask & result) == board_mask)):
         solution.append((direction, pos))
-        if ((board | board_mask) == board_target):
-            print('SOLUTION FOUND!')
+        if (result == board_target):
+            print('SOLUTION FOUND!\n')
+            print_bitboard(result)
+            print(solution)
             exit()
         else:
             solve(result, solution)
 
 
-seen_boards = []
+seen_boards = {}
 
 def solve(board, solution):
 
     if board in seen_boards:
         return
     else:
-        seen_boards.append(board)
+        seen_boards[board] = 1
 
     print_bitboard(board)
     
