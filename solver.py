@@ -36,7 +36,7 @@ def solve(board, solution):
     else:
         seen_boards[board] = 1
 
-    print_bitboard(board)
+    # print_bitboard(board)
 
     #         46, 45, 44,
     #         39, 38, 37,
