@@ -1,8 +1,30 @@
 from textwrap import wrap
-import threading
+from threading import Thread
 from queue import Queue
 from pprint import pprint
 import timeit
+
+class TaskQueue(Queue):
+
+    def __init__(self, num_workers = 1):
+        Queue.__init__(self)
+        self.num_workers = num_workers
+        self.start_workers()
+
+    def add_task(self, task, kwargs):
+        self.put((task, kwargs))
+
+    def start_workers(self):
+        for i in range(self.num_workers):
+            t = Thread(target = self.worker)
+            t.daemon = True
+            t.start()
+
+    def worker(self):
+        while True:
+            fn, kwargs = self.get()
+            fn(**kwargs)
+            self.task_done()
 
 def print_bitboard(board):
     board_string = '{:064b}'.format(board)[15:]
@@ -52,16 +74,12 @@ def solve(board, solution):
     #         4 , 3 , 2 ,
 
     for pos in [39, 38, 37, 32, 31, 30, 27, 26, 25, 24, 23, 22, 21, 18, 17, 16, 11, 10, 9]:
-        job_queue.put({'direction': 'up', 'pos': pos,
-                       'board': board, 'solution': solution[:]})
-        job_queue.put({'direction': 'down', 'pos': pos,
-                       'board': board, 'solution': solution[:]})
+        job_queue.add_task(solve_dir, {'direction': 'up', 'pos': pos, 'board': board, 'solution': solution[:]})
+        job_queue.add_task(solve_dir, {'direction': 'down', 'pos': pos, 'board': board, 'solution': solution[:]})
 
     for pos in [45, 38, 33, 32, 31, 30, 29, 26, 25, 24, 23, 22, 19, 18, 17, 16, 15, 10, 3]:
-        job_queue.put({'direction': 'left', 'pos': pos,
-                       'board': board, 'solution': solution[:]})
-        job_queue.put({'direction': 'right', 'pos': pos,
-                       'board': board, 'solution': solution[:]})
+        job_queue.add_task(solve_dir, {'direction': 'left', 'pos': pos, 'board': board, 'solution': solution[:]})
+        job_queue.add_task(solve_dir, {'direction': 'right', 'pos': pos,'board': board, 'solution': solution[:]})
 
 def solve_dir(direction, pos, board, solution):
     global running
@@ -78,24 +96,12 @@ def solve_dir(direction, pos, board, solution):
         else:
             solve(result, solution)
 
-def process_queue(job_queue):
-    global running
-    while running:
-        args = job_queue.get()
-        solve_dir(**args)
-        job_queue.task_done()
-
 def main():
     setup()
     global start_time
     start_time = timeit.default_timer()
     print('Solving...\n')
     solve(board, [])
-
-    for i in range(no_threads):
-        worker = threading.Thread(target=process_queue, args=(job_queue,), daemon = True)
-        worker.start()
-
     job_queue.join()
 
 def setup():
@@ -110,7 +116,7 @@ def setup():
     global job_queue
 
     running = True
-    no_threads = 10
+    no_threads = 1
 
     board_target = str_to_bitboard("""
     1100011
@@ -135,7 +141,7 @@ def setup():
     board = str_to_bitboard(board_string)
     board_len = len(''.join(board_string.split()))
     seen_boards = {}
-    job_queue = Queue()
+    job_queue = TaskQueue(num_workers = no_threads)
 
 if __name__ == "__main__":
     main()
