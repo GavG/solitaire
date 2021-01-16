@@ -39,6 +39,16 @@ board_mask = str_to_bitboard("""
 1100011
 """)
 
+board_target = str_to_bitboard("""
+1100011
+1100011
+0000000
+0001000
+0000000
+1100011
+1100011
+""")
+
 board_string = """
 1111111
 1111111
@@ -65,9 +75,42 @@ else:
 
 print('Solving...')
 
-def solve(board):
-    for pos in range(0, board_len):
-        print(pos)
+def solve_dir(direction, pos, board, solution):
+    valid, result = is_valid_move(board, direction, pos)
+    if (valid and ((board_mask & result) == board_mask)):
+        solution.append((direction, pos))
+        if ((board | board_mask) == board_target):
+            print('SOLUTION FOUND!')
+            exit()
+        else:
+            solve(result, solution)
 
 
-solve(board)
+seen_boards = []
+
+def solve(board, solution):
+
+    if board in seen_boards:
+        return
+    else:
+        seen_boards.append(board)
+
+    print_bitboard(board)
+    
+    #         46, 45, 44,
+    #         39, 38, 37,
+    # 34, 33, 32, 31, 30, 29, 28,
+    # 27, 26, 25, 24, 23, 22, 21,
+    # 20, 19, 18, 17, 16, 15, 14,
+    #         11, 10, 9 ,
+    #         4 , 3 , 2 ,
+
+    for pos in [39, 38, 37, 32, 31, 30, 27, 26, 25, 24, 23, 22, 21, 18, 17, 16, 11, 10, 9]:
+        solve_dir('up', pos, board, solution)
+        solve_dir('down', pos, board, solution)
+
+    for pos in [45, 38, 33, 32, 31, 30, 29, 26, 25, 24, 23, 22, 19, 18, 17, 16, 15, 10, 3]:
+        solve_dir('left', pos, board, solution)
+        solve_dir('right', pos, board, solution)
+
+solve(board, [])
