@@ -1,4 +1,5 @@
 from textwrap import wrap
+from pprint import pprint
 import timeit
 
 def print_bitboard(board):
@@ -62,7 +63,7 @@ def solve_dir(direction, pos, board, solution):
         if (result == board_target):
             print('SOLUTION FOUND!\n')
             print_bitboard(result)
-            print(solution)
+            pprint(solution)
             print('\nTime taken: ')
             print(timeit.default_timer() - start_time)
             exit()
