@@ -5,8 +5,7 @@ from queue import Queue
 
 def print_bitboard(board):
     board_string = '{:064b}'.format(board)[15:]
-    print('\n'.join([' '.join(wrap(line, 1))
-                     for line in wrap(board_string, 7)]))
+    print('\n'.join([' '.join(wrap(line, 1)) for line in wrap(board_string, 7)]))
     print('\n')
 
 
