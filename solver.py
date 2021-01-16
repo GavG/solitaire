@@ -56,7 +56,7 @@ def solve(board, solution):
 
 def solve_dir(direction, pos, board, solution):
     valid, result = is_valid_move(board, direction, pos)
-    if (valid and ((board_mask & result) == board_mask)):
+    if valid:
         solution.append((direction, pos))
         if (result == board_target):
             print('SOLUTION FOUND!\n')
@@ -72,22 +72,11 @@ def main():
     solve(board, [])
 
 def setup():
-    global board_mask
     global board_target
     global board_string
     global board
     global board_len
     global seen_boards
-
-    board_mask = str_to_bitboard("""
-    1100011
-    1100011
-    0000000
-    0000000
-    0000000
-    1100011
-    1100011
-    """)
 
     board_target = str_to_bitboard("""
     1100011
