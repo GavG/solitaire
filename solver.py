@@ -31,7 +31,7 @@ def is_valid_move(board, direction, position):
         result = move_board ^ board
         return (result & move_board) == (1 << position + 1), result
 
-def solve(board, solution):
+def solve(board, solution, last_pos = 0):
     if board in seen_boards:
         return
     else:
@@ -48,12 +48,14 @@ def solve(board, solution):
     #         4 , 3 , 2 ,
 
     for pos in [39, 38, 37, 32, 31, 30, 27, 26, 25, 24, 23, 22, 21, 18, 17, 16, 11, 10, 9]:
-        solve_dir('up', pos, board, solution[:])
-        solve_dir('down', pos, board, solution[:])
+        if pos != last_pos:
+            solve_dir('up', pos, board, solution[:])
+            solve_dir('down', pos, board, solution[:])
 
     for pos in [45, 38, 33, 32, 31, 30, 29, 26, 25, 24, 23, 22, 19, 18, 17, 16, 15, 10, 3]:
-        solve_dir('left', pos, board, solution[:])
-        solve_dir('right', pos, board, solution[:])
+        if pos != last_pos:
+            solve_dir('left', pos, board, solution[:])
+            solve_dir('right', pos, board, solution[:])
 
 
 def solve_dir(direction, pos, board, solution):
@@ -68,7 +70,7 @@ def solve_dir(direction, pos, board, solution):
             print(timeit.default_timer() - start_time)
             exit()
         else:
-            solve(result, solution)
+            solve(result, solution, pos)
 
 def main():
     setup()

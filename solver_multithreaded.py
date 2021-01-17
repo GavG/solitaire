@@ -9,6 +9,7 @@ class TaskQueue(Queue):
     def __init__(self, num_workers = 1):
         Queue.__init__(self)
         self.num_workers = num_workers
+        self.threads = []
         self.start_workers()
 
     def add_task(self, task, kwargs):
@@ -16,7 +17,8 @@ class TaskQueue(Queue):
 
     def start_workers(self):
         for i in range(self.num_workers):
-            t = Thread(target = self.worker)
+            t = Thread(target=self.worker)
+            self.threads.append(t)
             t.daemon = True
             t.start()
 
@@ -25,6 +27,10 @@ class TaskQueue(Queue):
             fn, kwargs = self.get()
             fn(**kwargs)
             self.task_done()
+
+    def clear(self):
+        for thread in self.threads:
+            thread._is_running = False
 
 def print_bitboard(board):
     board_string = '{:064b}'.format(board)[15:]
@@ -92,6 +98,7 @@ def solve_dir(direction, pos, board, solution):
             print_bitboard(result)
             pprint(solution)
             print(timeit.default_timer() - start_time)
+            job_queue.clear()
             exit()
         else:
             solve(result, solution)
@@ -116,7 +123,7 @@ def setup():
     global job_queue
 
     running = True
-    no_threads = 1
+    no_threads = 100
 
     board_target = str_to_bitboard("""
     1100011
@@ -136,6 +143,16 @@ def setup():
     1111111
     1111111
     1111111
+    """
+
+    board_string = """
+    1100011
+    1100011
+    0001100
+    0000010
+    0000100
+    1101011
+    1100011
     """
 
     board = str_to_bitboard(board_string)
